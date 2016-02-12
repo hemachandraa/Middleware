@@ -1,0 +1,27 @@
+SSL ENABLE For TOMCAT
+---------------------
+
+1. create Tomcat keystore is a path of your choice (c:\ is my preferred choice):
+
+$JAVA_HOME\bin\keytool -genkey -alias tomcat -keyalg RSA -keystore c:\my.keystore
+
+2. create CSR: 
+$JAVA_HOME\bin\keytool -certreq -keyslg RSA -alias tomcat -file c:\certreq.csr -keystore c:\my.keystore
+
+3. request SSL certificate at C.A. and use the C.S.R created in step2.
+
+4. Import Root and SSL certificate (chain certificate):
+keytool -import -alias root -keystore c:\my.keystore -trustcacerts -file <filename_of_the_chain_certifcate (full path)>
+keytool -import -alias tomcat -keystore c:\my.keystore -file <your_certificate_filename (full path)>
+
+5. change connectors in server.xml file in tomcat:
+comment-out the non ssl connector (port 8080 or 80) so it wont be used again.
+and change the ssl connector (and uncomment it if commented) to
+<Connector 
+	protocol="HTTP/1.1"
+	port="8443" maxThreads="200"
+	scheme="https" secure="true" SSLEnabled="true"
+	keystoreFile="c:\my.keystore" keystorePass="changeit"
+	clientAuth="false" sslProtocol="TLS"/>
+	
+6.Done. Test your URL with ssl
